@@ -1,0 +1,21 @@
+/* ==== general information ==== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  overflow: hidden;
+  max-width: 1920px;
+  margin: 0;
+  padding: 0;
+  color: white;
+  background-image: url("../img/background.png");
+  background-size: cover;
+}
+
+.bg-image {
+  width: 1920px;
+  height: 1080px;
+}
