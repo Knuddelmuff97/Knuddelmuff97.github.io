@@ -1,7 +1,7 @@
 function preload() {
   // vorlage hamster: https://de.freepik.com/vektoren-kostenlos/set-von-karten-mit-nachrichten-und-hand-gezeichneten-hamster_1252054.htm#page=1&query=hamster&position=0
-  hamster_up = loadImage("../img/hamster_up.png");
-  hamster_down = loadImage("../img/hamster_down.png");
+  hamster_up = loadImage("../img/hamster-up.png");
+  hamster_down = loadImage("../img/hamster-down.png");
   wheel = loadImage("../img/wheel.png");
   // vorlage Katze: https://de.freepik.com/vektoren-kostenlos/handgezeichnete-entzueckende-tiere-sammlung_4176026.htm#page=2&query=cat&position=1
   cat = loadImage("../img/cat.png");
