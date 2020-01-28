@@ -8,13 +8,12 @@ let speedX = 0;
 let thrust = 0;
 let score = 0;
 let scoreUp = false;
-let time = 0;
 let xStartButton = 150;
 let yStartButton = 250;
 let widthStartButton = 100;
 let heightStartButton = 64;
 let xResetButton = 95;
-let yResetButton = 320;
+let yResetButton = 240;
 let widthResetButton = 214;
 let heightResetButton = 64;
 let xHowTo = 275;
@@ -26,6 +25,8 @@ let yCloseButton = 60;
 let widthCloseButton = 25;
 let heightCloseButton = 25;
 let showMenu = false;
+let textArray = [];
+let writeIntoLastScores = true;
 
 // ==== VARIABLES Doodler ====
 let xDoodler = width / 2;
@@ -60,7 +61,7 @@ let plattform = {
 let plattformArray = [];
 
 // ==== VARIABLES blackHole ====
-let blackHoleRadius = 100;
+let blackHoleRadius = 130;
 let alreadyDrawnBlackHole = false;
 let randomBlackHole = 0;
 let blackHole = {
@@ -98,6 +99,19 @@ let seed = {
   rotation: 0
 };
 let seedArray = [];
+
+// ==== VARIABLES wheat ====
+let wheatWidth = 30;
+let wheatHeight = 50;
+let alreadyDrawnWheat = false;
+let randomWheat = 0;
+let wheat = {
+  x: 0,
+  y: 0,
+  width: 0,
+  height: 0
+};
+let wheatArray = [];
 
 // ==== PLATTFORMS ====
 function setPlattform() {
@@ -197,7 +211,7 @@ function addPlattform() {
 function setBlackHole() {
   blackHole = {
     x: random(width - blackHoleRadius),
-    y: -90,
+    y: -120,
     radius: blackHoleRadius
   };
   blackHoleArray.push(blackHole);
@@ -324,13 +338,46 @@ function moveSeed() {
   }
 }
 
+// ==== MONSTER ====
+function setWheat() {
+  plattformY = -60;
+  setPlattform();
+  wheat = {
+    x: plattformX + 15,
+    y: plattformY,
+    width: wheatWidth,
+    height: wheatHeight
+  };
+  wheatArray.push(wheat);
+  plattformY = -10;
+}
+
+function setFirstWheat() {
+  if (!alreadyDrawnWheat) {
+    setWheat();
+    alreadyDrawnWheat = true;
+  }
+}
+
+function drawWheat() {
+  for (let i in wheatArray) {
+    image(
+      imgWheat,
+      wheatArray[i].x,
+      wheatArray[i].y,
+      wheatArray[i].width,
+      wheatArray[i].height
+    );
+  }
+}
+
 // ==== GENERAL ====
 function doodler(xDoodler, yDoodler, doodlerWidth, doodlerHeight) {
   fill("white");
-  if (speedY < 0) {
+  if (speedY > 0) {
     image(hamster_down, xDoodler, yDoodler, doodlerWidth, doodlerHeight);
   }
-  if (speedY > 0) {
+  if (speedY < 0) {
     image(hamster_up, xDoodler, yDoodler, doodlerWidth, doodlerHeight);
   }
 }
@@ -387,10 +434,12 @@ function menu() {
   text("shoot seeds at", 200, 330);
   text("dangerous monster.", 200, 350);
 
+  blackHoleRadius = 110;
   image(wheel, 60, 410, blackHoleRadius, blackHoleRadius);
   text("Be careful of the", 200, 440);
   text("wheels, you can't", 200, 460);
   text("shoot them.", 200, 480);
+  blackHoleRadius = 130;
 }
 
 function showScore(x, y) {
@@ -418,18 +467,18 @@ function reset() {
 
 function updateScreen() {
   if (!gameEndScreen) {
-    speedY -= 0.1;
+    speedY += 0.1;
     thrust = 0.2;
-    if (yDoodler - speedY > height / 2) {
-      yDoodler -= speedY;
+    if (yDoodler + speedY > height / 2) {
+      yDoodler += speedY;
       scoreUp = true;
     } else {
-      moveScreen(speedY);
+      moveScreen(-speedY);
     }
     if (indexLastPlattform === indexSecondLastPlattform) {
       scoreUp = false;
     }
-    if (scoreUp === true && speedY > 0) {
+    if (scoreUp === true && speedY < 0) {
       score++;
     }
   }
@@ -470,6 +519,7 @@ function moveScreen(speedMove) {
       }
     }
   }
+
   // monster
   for (let i in monsterArray) {
     monsterArray[i].y += speedMove;
@@ -478,6 +528,18 @@ function moveScreen(speedMove) {
       if (randomMonster === 699) {
         setMonster();
         monsterArray.splice(i, 1);
+      }
+    }
+  }
+
+  // wheat
+  for (let i in wheatArray) {
+    wheatArray[i].y += speedMove;
+    if (wheatArray[i].y > height * 2) {
+      randomWheat = floor(random(1, 500));
+      if (randomWheat === 499) {
+        setWheat();
+        wheatArray.splice(i, 1);
       }
     }
   }
@@ -490,9 +552,11 @@ function gameEnd() {
   xDoodler = width / 2;
   speedX = 0;
   alreadyDrawnBlackHole = false;
+  alreadyDrawnMonster = false;
+  alreadyDrawnWheat = false;
   plattformAbsolutHeight = 0;
-  time = 0;
   startShooting = false;
+  writeIntoLastScores = true;
 }
 
 function endScreen() {
@@ -501,12 +565,48 @@ function endScreen() {
   thrust = 0;
   gameEndScreen = true;
   resetButton();
-  image(endTitle, 40, 100, 325, 105);
+  image(endTitle, 40, 50, 325, 105);
   textSize(25);
   textAlign(CENTER);
-  text("Your score: " + score, width / 2, 270);
+  text("score: " + score, width / 2, 200);
+  yourHighscore();
 }
 
+function yourHighscore() {
+  writeLastScores();
+  text("Your best scores:", width / 2, 370);
+  text("1. " + textArray[textArray.length - 1], width / 2, 420);
+  if (textArray.length > 1) {
+    text("2. " + textArray[textArray.length - 2], width / 2, 460);
+  }
+  if (textArray.length > 2) {
+    text("3. " + textArray[textArray.length - 3], width / 2, 500);
+  }
+  if (textArray.length > 3) {
+    text("4. " + textArray[textArray.length - 4], width / 2, 540);
+  }
+  if (textArray.length > 4) {
+    text("5. " + textArray[textArray.length - 5], width / 2, 580);
+  }
+}
+
+function writeLastScores() {
+  if (writeIntoLastScores) {
+    textArray.push(score);
+    textArray.sort(compareScores);
+    print(textArray);
+    if (textArray.length > 5) {
+      textArray.shift();
+    }
+  }
+  writeIntoLastScores = false;
+}
+
+function compareScores(a, b) {
+  return a - b;
+}
+
+gameEnd();
 reset();
 
 function draw() {
@@ -528,11 +628,11 @@ function draw() {
     }
   } else {
     drawPlattform();
-    time++;
     updateScreen();
     drawPlattform();
     drawBlackHole();
     drawMonster();
+    drawWheat();
     movePlattformX();
     moveSeed();
     deleteMonster();
@@ -547,6 +647,11 @@ function draw() {
     if (score === 1000) {
       setFirstMonster();
     }
+
+    if (score === 100) {
+      setFirstWheat();
+    }
+
     drawSeed();
   }
   doodler(xDoodler, yDoodler, doodlerWidth, doodlerHeight);
@@ -613,6 +718,19 @@ function draw() {
     }
   }
 
+  // collision detection Doodler Wheat
+  for (let i in wheatArray) {
+    if (
+      xDoodler > wheatArray[i].x - 40 &&
+      xDoodler + doodlerWidth < wheatArray[i].x + wheatWidth + 40 &&
+      yDoodler + doodlerHeight > wheatArray[i].y &&
+      yDoodler + doodlerHeight < wheatArray[i].y + wheatHeight &&
+      speedY > 0
+    ) {
+      speedY = -14;
+    }
+  }
+
   // collision detection Doodler Plattform
   // Quelle Methode: https://happycoding.io/tutorials/processing/collision-detection
   for (let i in plattformArray) {
@@ -621,12 +739,12 @@ function draw() {
       xDoodler + doodlerWidth < plattformArray[i].x + plattformWidth + 40 &&
       yDoodler + doodlerHeight > plattformArray[i].y &&
       yDoodler + doodlerHeight < plattformArray[i].y + plattformHeight &&
-      speedY < 0
+      speedY > 0
     ) {
       indexSecondLastPlattform = indexLastPlattform;
       indexLastPlattform = plattformArray[i];
       plattformArray[i].hit = true;
-      speedY = 7;
+      speedY = -7;
     }
   }
 

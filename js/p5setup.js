@@ -1,3 +1,5 @@
+window.addEventListener("load", preload);
+
 function preload() {
   // vorlage hamster: https://de.freepik.com/vektoren-kostenlos/set-von-karten-mit-nachrichten-und-hand-gezeichneten-hamster_1252054.htm#page=1&query=hamster&position=0
   hamster_up = loadImage("../img/hamster-up.png");
@@ -15,6 +17,7 @@ function preload() {
   endTitle = loadImage("../img/end.png");
   howTo = loadImage("../img/how_to.png");
   closeButton = loadImage("../img/x.png");
+  imgWheat = loadImage("../img/wheat.png");
 
   myFont = loadFont("../img/GROBOLD.ttf");
 }
@@ -24,12 +27,11 @@ function setup() {
   frameRate(30);
 }
 
-/*
-window.addEventListener("resize", function() {
-resizeCanvas(windowWidth, windowHeight);
-  clear();
-});
-*/
+// window.addEventListener("resize", function() {
+//   resizeCanvas(windowWidth, windowHeight);
+//   clear();
+// });
+
 new p5();
 var width = windowWidth;
 var height = windowHeight;
