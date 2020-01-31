@@ -59,6 +59,7 @@ let plattform = {
   hit: false
 };
 let plattformArray = [];
+let plattformN = 0;
 
 // ==== VARIABLES blackHole ====
 let blackHoleRadius = 130;
@@ -72,12 +73,16 @@ let blackHole = {
 let blackHoleArray = [];
 
 // ==== VARIABLES monster ====
-let monsterWidth = 90;
-let monsterHeight = 100;
+let monsterWidth = 0;
+let monsterHeight = 0;
+let monsterX = 0;
 let alreadyDrawnMonster = false;
 let randomMonster = 0;
 let randomMonsterDraw = 0;
 let deleteMonsterFromCanvas = false;
+let typeMonster = 0;
+let alignmentMonster = 0;
+let stopMovingMonster = false;
 let monster = {
   x: 0,
   y: 0,
@@ -91,7 +96,7 @@ let monsterArray = [];
 let startShooting = false;
 let seedX = xDoodler + speedX;
 let seedY = yDoodler + speedY;
-let seedRadius = 10;
+let seedRadius = 15;
 let seed = {
   x: 0,
   y: 0,
@@ -118,11 +123,12 @@ function setPlattform() {
   plattformX = random(width - plattformWidth);
   plattform = {
     x: plattformX,
-    y: -10,
+    y: plattformY,
     width: plattformWidth,
     height: plattformHeight,
     type: floor(random(0, 2)),
-    direction: floor(random(0, 2))
+    direction: floor(random(0, 2)),
+    number: plattformN
   };
   if (score <= 1000) {
     plattform.type = floor(random(0, 2));
@@ -137,6 +143,7 @@ function setPlattform() {
     plattform.type = 2;
   }
   plattformArray.push(plattform);
+  plattformN++;
 }
 
 function drawPlattform() {
@@ -238,17 +245,57 @@ function drawBlackHole() {
 
 // ==== MONSTER ====
 function setMonster() {
-  plattformY = -50;
   setPlattform();
-  monster = {
-    x: plattformX - 20,
-    y: plattformY - 60,
-    width: monsterWidth,
-    height: monsterHeight,
-    type: 0 // floor(random(0, 2))
-  };
+  typeMonster = floor(random(0, 2));
+  alignmentMonster = floor(random(0, 2));
+
+  if (typeMonster === 0) {
+    monsterWidth = 90;
+    monsterHeight = 100;
+
+    monster = {
+      x: plattformArray[plattformArray.length - 1].x - 20,
+      y: plattformArray[plattformArray.length - 1].y - 100,
+      width: monsterWidth,
+      height: monsterHeight,
+      type: typeMonster,
+      plattformNumber: plattformArray[plattformArray.length - 1].number
+    };
+  }
+
+  if (alignmentMonster === 0) {
+    monsterX = 200;
+  }
+  if (alignmentMonster === 1) {
+    monsterX = -150;
+  }
+
+  if (typeMonster === 1) {
+    monsterWidth = 200;
+    monsterHeight = 67;
+
+    monster = {
+      x: monsterX,
+      y: -50,
+      width: monsterWidth,
+      height: monsterHeight,
+      type: typeMonster,
+      direction: floor(random(0, 2)),
+      alignment: alignmentMonster
+    };
+  }
+
   monsterArray.push(monster);
-  plattformY = -10;
+}
+
+function updateMonster() {
+  for (let i in plattformArray) {
+    for (let j in monsterArray) {
+      if (monsterArray[j].plattformNumber === plattformArray[i].number) {
+        monsterArray[j].x = plattformArray[i].x - 20;
+      }
+    }
+  }
 }
 
 function setFirstMonster() {
@@ -270,13 +317,24 @@ function drawMonster() {
       );
     }
     if (monsterArray[i].type === 1) {
-      fill("black");
-      rect(
-        monsterArray[i].x,
-        monsterArray[i].y,
-        monsterArray[i].width,
-        monsterArray[i].height
-      );
+      if (alignmentMonster === 0) {
+        image(
+          hand,
+          monsterArray[i].x,
+          monsterArray[i].y,
+          monsterArray[i].width,
+          monsterArray[i].height
+        );
+      }
+      if (alignmentMonster === 1) {
+        image(
+          hand_mirrored,
+          monsterArray[i].x,
+          monsterArray[i].y,
+          monsterArray[i].width,
+          monsterArray[i].height
+        );
+      }
     }
   }
 }
@@ -299,6 +357,44 @@ function newMonsterAfterDelete() {
   }
 }
 
+function moveMonsterX() {
+  if (stopMovingMonster === false) {
+    for (let i in monsterArray) {
+      if (alignmentMonster === 0) {
+        if (monsterArray[i].type === 1) {
+          if (monsterArray[i].direction === 0) {
+            monsterArray[i].x--;
+          } else {
+            monsterArray[i].x++;
+          }
+          if (monsterArray[i].x > width - 50) {
+            monsterArray[i].direction = 0;
+          }
+          if (monsterArray[i].x < 200) {
+            monsterArray[i].direction = 1;
+          }
+        }
+      }
+
+      if (alignmentMonster === 1) {
+        if (monsterArray[i].type === 1) {
+          if (monsterArray[i].direction === 0) {
+            monsterArray[i].x--;
+          } else {
+            monsterArray[i].x++;
+          }
+          if (monsterArray[i].x > -20) {
+            monsterArray[i].direction = 0;
+          }
+          if (monsterArray[i].x < -150) {
+            monsterArray[i].direction = 1;
+          }
+        }
+      }
+    }
+  }
+}
+
 // ==== SEEDS ====
 function setSeed(a) {
   // get current Doodler position
@@ -316,8 +412,13 @@ function setSeed(a) {
 
 function drawSeed() {
   for (let i in seedArray) {
-    fill("black");
-    ellipse(seedArray[i].x, seedArray[i].y, seedArray[i].radius);
+    image(
+      imgSeed,
+      seedArray[i].x,
+      seedArray[i].y,
+      seedArray[i].radius,
+      seedArray[i].radius
+    );
   }
 }
 
@@ -343,10 +444,11 @@ function setWheat() {
   plattformY = -60;
   setPlattform();
   wheat = {
-    x: plattformX + 15,
-    y: plattformY,
+    x: plattformArray[plattformArray.length - 1].x + 15,
+    y: plattformArray[plattformArray.length - 1].y - 50,
     width: wheatWidth,
-    height: wheatHeight
+    height: wheatHeight,
+    plattformNumber: plattformArray[plattformArray.length - 1].number
   };
   wheatArray.push(wheat);
   plattformY = -10;
@@ -368,6 +470,16 @@ function drawWheat() {
       wheatArray[i].width,
       wheatArray[i].height
     );
+  }
+}
+
+function updateWheat() {
+  for (let i in plattformArray) {
+    for (let j in wheatArray) {
+      if (wheatArray[j].plattformNumber === plattformArray[i].number) {
+        wheatArray[j].x = plattformArray[i].x + 15;
+      }
+    }
   }
 }
 
@@ -429,7 +541,7 @@ function menu() {
   text("or A and D to navigate", 200, 200);
   text("the hamster.", 200, 220);
 
-  image(cat, 65, 280, monsterWidth, monsterHeight);
+  image(cat, 65, 280, 90, 100);
   text("Use the mouse to", 200, 310);
   text("shoot seeds at", 200, 330);
   text("dangerous monster.", 200, 350);
@@ -557,6 +669,7 @@ function gameEnd() {
   plattformAbsolutHeight = 0;
   startShooting = false;
   writeIntoLastScores = true;
+  stopMovingMonster = false;
 }
 
 function endScreen() {
@@ -594,7 +707,6 @@ function writeLastScores() {
   if (writeIntoLastScores) {
     textArray.push(score);
     textArray.sort(compareScores);
-    print(textArray);
     if (textArray.length > 5) {
       textArray.shift();
     }
@@ -605,9 +717,6 @@ function writeLastScores() {
 function compareScores(a, b) {
   return a - b;
 }
-
-gameEnd();
-reset();
 
 function draw() {
   background(166, 206, 163);
@@ -629,11 +738,14 @@ function draw() {
   } else {
     drawPlattform();
     updateScreen();
+    updateMonster();
+    updateWheat();
     drawPlattform();
     drawBlackHole();
     drawMonster();
     drawWheat();
     movePlattformX();
+    moveMonsterX();
     moveSeed();
     deleteMonster();
     newMonsterAfterDelete();
@@ -714,6 +826,7 @@ function draw() {
       yDoodler + doodlerHeight > monsterArray[i].y &&
       yDoodler + doodlerHeight < monsterArray[i].y + monsterHeight
     ) {
+      stopMovingMonster = true;
       endScreen();
     }
   }

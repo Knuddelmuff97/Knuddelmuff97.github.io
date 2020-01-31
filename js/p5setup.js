@@ -1,5 +1,3 @@
-window.addEventListener("load", preload);
-
 function preload() {
   // vorlage hamster: https://de.freepik.com/vektoren-kostenlos/set-von-karten-mit-nachrichten-und-hand-gezeichneten-hamster_1252054.htm#page=1&query=hamster&position=0
   hamster_up = loadImage("../img/hamster-up.png");
@@ -7,6 +5,8 @@ function preload() {
   wheel = loadImage("../img/wheel.png");
   // vorlage Katze: https://de.freepik.com/vektoren-kostenlos/handgezeichnete-entzueckende-tiere-sammlung_4176026.htm#page=2&query=cat&position=1
   cat = loadImage("../img/cat.png");
+  hand = loadImage("../img/hand.png");
+  hand_mirrored = loadImage("../img/hand_mirrored.png");
   plattformWood = loadImage("../img/plattform_wood.png");
   plattformGrass = loadImage("../img/plattform_grass.png");
   plattformSand = loadImage("../img/plattform_sand.png");
@@ -18,6 +18,7 @@ function preload() {
   howTo = loadImage("../img/how_to.png");
   closeButton = loadImage("../img/x.png");
   imgWheat = loadImage("../img/wheat.png");
+  imgSeed = loadImage("../img/seed.png");
 
   myFont = loadFont("../img/GROBOLD.ttf");
 }
@@ -25,6 +26,8 @@ function preload() {
 function setup() {
   createCanvas(400, 600);
   frameRate(30);
+  gameEnd();
+  reset();
 }
 
 // window.addEventListener("resize", function() {
