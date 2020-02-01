@@ -68,7 +68,8 @@ let randomBlackHole = 0;
 let blackHole = {
   x: 0,
   y: 0,
-  radius: 0
+  radius: 0,
+  rot: 0
 };
 let blackHoleArray = [];
 
@@ -219,7 +220,8 @@ function setBlackHole() {
   blackHole = {
     x: random(width - blackHoleRadius),
     y: -120,
-    radius: blackHoleRadius
+    radius: blackHoleRadius,
+    rot: 0
   };
   blackHoleArray.push(blackHole);
 }
@@ -233,13 +235,20 @@ function setFirstBlackHole() {
 
 function drawBlackHole() {
   for (let i in blackHoleArray) {
-    image(
-      wheel,
-      blackHoleArray[i].x,
-      blackHoleArray[i].y,
-      blackHoleArray[i].radius,
-      blackHoleArray[i].radius
+    push();
+    angleMode(DEGREES);
+    imageMode(CENTER);
+    translate(
+      blackHoleArray[i].x + blackHoleArray[i].radius,
+      blackHoleArray[i].y + blackHoleArray[i].radius - 80
     );
+    blackHoleArray[i].rot += 1.5;
+    if (blackHoleArray[i].rot > 360) {
+      blackHoleArray[i].rot = 0;
+    }
+    rotate(blackHoleArray[i].rot);
+    image(wheel, 0, 0, blackHoleArray[i].radius, blackHoleArray[i].radius);
+    pop();
   }
 }
 
